@@ -2,6 +2,7 @@ const express=require("express");
 const { registerPartials } = require("hbs");
 const router=express.Router()
 const mongoose=require("mongoose")
+const bcrypt=require("bcrypt")
 router.use(express.urlencoded({extended:true}))
 
 
@@ -44,21 +45,23 @@ router.get("/home",check,(req,res)=>{
         }
 })
 
-router.post("/loginaction",async(req,res)=>{
-    try{
-        const data=await usersModel.findOne({username:req.body.username})
-        if(data.password==req.body.password){
-            req.session.isAuth=true;
+router.post('/loginaction', async(req, res) => {
+    try {
+        const data = await usersModel.findOne({ username: req.body.username })
+        const passwordMatch= await bcrypt.compare(req.body.password,data.password)
+        if(passwordMatch){
+            req.session.username = req.body.username;
+            req.session.isAuth = true;
             res.redirect("/home")
         }
-        else{
-            res.render('login', { passerror: "Invalid Password" })
+        else {
+            res.render('login',{ passerror:"Invalid Password"})
         }
     }
     catch{
-        const error="wrong"
-        console.log(error)
-    }
+        res.render('login', { nameerror:"Invalid username" })
+    }
+
 })
 router.get("/home",(req,res)=>{
 
@@ -68,21 +71,25 @@ router.get("/home",(req,res)=>{
 router.get("/signup",(req,res)=>{
     res.render("signup")
 })
-router.post("/signaction",async(req,res)=>{
-await usersModel.insertMany([{username:req.body.username,email:req.body.email,password:req.body.password}])
+router.post('/signaction', async (req, res) => {
+    const emexist=await usersModel.findOne({email:req.body.email})
+    if(emexist){
+        res.render('signup',{emexist:"E-mail Already Exist"})
+    }
+    else{
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+    await usersModel.insertMany([{username:req.body.username,email:req.body.email,password:hashedPassword}])
     res.redirect('/')
+    }
 })
 
 router.get("/logout",(req,res)=>{
-    req.session.isAuth=false;
+    req.session.isAuth=false
     req.session.destroy()
     res.redirect("/")
 })
 
-
-
-
-    module.exports=router
+    module.exports={router,usersModel}
 
 
 

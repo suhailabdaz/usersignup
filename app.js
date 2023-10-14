@@ -1,6 +1,7 @@
 const express=require("express")
 const session = require('express-session');
-const userRouter=require("./router/router")
+const {router}=require("./router/router")
+const nocache=require("nocache")
 const adRouter=require("./router/adminrouter")
 const app=express()
 
@@ -12,14 +13,15 @@ app.use(session({
     resave: false,
     saveUninitialized: true,
 }));
-app.use(function (req, res, next) {
-    res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
-    res.header('Expires', '-1');
-    res.header('Pragma', 'no-cache');
-    next()
-});
+app.use(nocache())
+// app.use(function (req, res, next) {
+//     res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
+//     res.header('Expires', '-1');
+//     res.header('Pragma', 'no-cache');
+//     next()
+// });
 
-app.use("/",userRouter)
+app.use("/",router)
 app.use("/admin",adRouter)
 
 
