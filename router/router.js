@@ -33,9 +33,9 @@ router.get("/",(req,res)=>{
     if(req.session.isAuth){
         res.redirect("/home")
     }
-    else if(req.session.isadAuth){
-        res.redirect("/admin")
-    }
+    // else if(req.session.isadAuth){
+    //     res.redirect("/admin")
+    // }
     else{
     res.render("login")
     }
@@ -104,12 +104,16 @@ router.post('/loginaction', async(req, res) => {
             res.redirect("/home")
         }
         else {
-            res.render('login',{ passerror:"Invalid Password"})
+            res.render('login',{passerror:"Invalid Password"})
+        
         }
     }
     catch{
-        res.render('login', { nameerror:"Invalid username" })
+        res.render('login', {nameerror:"Invalid username" })
     }
+    
+    
+    
 
 })
 router.get("/home",(req,res)=>{

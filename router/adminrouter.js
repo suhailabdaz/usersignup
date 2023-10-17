@@ -135,6 +135,7 @@ adrouter.post("/adminlogin",async(req,res)=>{
         if (req.session.isadAuth) {
             const uemail = req.params.email;
             const newEmail = req.body.email;
+            const user=await usersModel.findOne({email:uemail})
     
             // Check if the new email already exists in the database, excluding the current document's email
             const emailexists=await usersModel.findOne({
@@ -145,7 +146,7 @@ adrouter.post("/adminlogin",async(req,res)=>{
             });
             
             if (emailexists) {
-                res.render("update", { erroremail: "Email already exists" });
+                res.render("update", {data:user,erroremail: "Email already exists" });
             } else {
 
                 await usersModel.updateOne({ email: uemail }, { username: req.body.username, email: newEmail });
