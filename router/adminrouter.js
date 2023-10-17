@@ -94,7 +94,8 @@ adrouter.post("/adminlogin",async(req,res)=>{
 
     })
 
-    adrouter.post("/addnewuser",async(req,res)=>{
+    adrouter.post("/addnewuser",adcheck,async(req,res)=>{
+        if(req.session.isadAuth){
         const emailexists=await usersModel.findOne({email:req.body.email})
         if(emailexists){
             res.render("adduser",{erroremail:"email exists"})
@@ -104,7 +105,10 @@ adrouter.post("/adminlogin",async(req,res)=>{
             await usersModel.insertMany([{username:req.body.username,email:req.body.email,password:hashedPassword}])
             res.redirect('/admin/adminpanel')
             }
-       
+    }
+     else{
+        res.redirect("/admin")
+     }  
     })
 
     adrouter.get('/delete/:email',adcheck,async (req, res) => {
@@ -119,6 +123,7 @@ adrouter.post("/adminlogin",async(req,res)=>{
 
     adrouter.get('/update/:email', adcheck, async (req, res) => {
         if (req.session.isadAuth) {
+        
             const useremail = req.params.email;
             const user = await usersModel.findOne({ email: useremail })
             res.render('update', { data: user })
@@ -128,15 +133,29 @@ adrouter.post("/adminlogin",async(req,res)=>{
     })
     adrouter.post('/update/:email', adcheck, async (req, res) => {
         if (req.session.isadAuth) {
-            const useremail = req.params.email;
-            await usersModel.updateOne({email:useremail }, { username: req.body.username, email:req.body.email })
-            res.redirect('/admin/adminpanel')
-        }
-        else {
-            res.redirect('/admin')
-        }
-    })
+            const uemail = req.params.email;
+            const newEmail = req.body.email;
+    
+            // Check if the new email already exists in the database, excluding the current document's email
+            const emailexists=await usersModel.findOne({
+                $and: [
+                    { email: newEmail },
+                    { email: { $ne: uemail } }
+                ]
+            });
+            
+            if (emailexists) {
+                res.render("update", { erroremail: "Email already exists" });
+            } else {
 
+                await usersModel.updateOne({ email: uemail }, { username: req.body.username, email: newEmail });
+                res.redirect('/admin/adminpanel');
+            }
+        } else {
+            res.redirect('/admin');
+        }
+    });
+    
 
 
 
