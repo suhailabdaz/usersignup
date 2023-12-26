@@ -31,9 +31,10 @@ function check(req,res,next){
 
 router.get("/",(req,res)=>{
     if(req.session.isAuth){
-        console.log("conflict");
+        
         res.redirect("/home")
-        console.log("conn");
+        console.log("main extra");
+       
     }
     // else if(req.session.isadAuth){
     //     res.redirect("/admin")
