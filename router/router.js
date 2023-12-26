@@ -33,6 +33,7 @@ router.get("/",(req,res)=>{
     if(req.session.isAuth){
         
         res.redirect("/home")
+        console.log("merged");
 
        
     }
