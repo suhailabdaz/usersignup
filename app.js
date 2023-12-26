@@ -9,6 +9,7 @@ app.use(express.urlencoded({extended:true}))
 app.set("view engine","hbs")
 app.use(express.static(__dirname + '/public'));
 
+
 app.use(session({
     secret: 'your-secret-key',
     resave: false,
@@ -19,6 +20,11 @@ app.use(nocache())
 
 app.use("/",router)
 app.use("/admin",adRouter)
+
+app.get("*",(req,res)=>{
+    res.status(404).send("page not found")
+})
+
 
 
 app.listen(3000)
