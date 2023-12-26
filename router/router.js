@@ -33,7 +33,7 @@ router.get("/",(req,res)=>{
     if(req.session.isAuth){
         
         res.redirect("/home")
-        console.log("main extra");
+
        
     }
     // else if(req.session.isadAuth){
